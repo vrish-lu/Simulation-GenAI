@@ -12,92 +12,153 @@ const state = {
 };
 
 // --- Bot Controller (UPDATED for Bottom Right) ---
-const Bot = {
-    el: document.getElementById('ai-bot'),
-    textEl: document.getElementById('bot-text'),
-    bubble: document.querySelector('.bot-bubble'),
-    overlay: document.getElementById('bot-overlay'),
-    logContainer: document.getElementById('log-content'),
+let Bot;
+let canvas, ctx, width, height, nodes;
 
-    show() {
-        this.el.classList.remove('hidden');
-        gsap.to(this.el, { opacity: 1, duration: 0.5 });
-    },
+// Initialize after DOM is ready
+function initBot() {
+    Bot = {
+        el: document.getElementById('ai-bot'),
+        textEl: document.getElementById('bot-text'),
+        bubble: document.querySelector('.bot-bubble'),
+        overlay: document.getElementById('bot-overlay'),
+        logContainer: document.getElementById('log-content'),
 
-    addToLog(text) {
-        // Remove placeholder if present
-        const ph = document.querySelector('.log-placeholder');
-        if (ph) ph.remove();
+        show() {
+            if (this.el) {
+                this.el.classList.remove('hidden');
+                gsap.to(this.el, { opacity: 1, duration: 0.5 });
+            }
+        },
 
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerText = text;
-        this.logContainer.appendChild(entry);
-        this.logContainer.scrollTop = this.logContainer.scrollHeight;
-    },
+        addToLog(text) {
+            // Remove placeholder if present
+            const ph = document.querySelector('.log-placeholder');
+            if (ph) ph.remove();
 
-    async speak(text, pauseDuration = 2000) {
-        this.show();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = text;
+            if (this.logContainer) {
+                this.logContainer.appendChild(entry);
+                this.logContainer.scrollTop = this.logContainer.scrollHeight;
+            }
+        },
 
-        // Clear text immediately
-        this.textEl.innerHTML = "";
+        async speak(text, pauseDuration = 2000) {
+            if (!this.el || !this.textEl || !this.bubble || !this.overlay) return;
+            
+            this.show();
 
-        // 1. Overlay & Bubble Animation
-        this.overlay.classList.add('active'); // Fade in backdrop
+            // Clear text immediately
+            this.textEl.innerHTML = "";
 
-        const tl = gsap.timeline();
+            // 1. Overlay & Bubble Animation
+            this.overlay.classList.add('active'); // Fade in backdrop
 
-        // Ensure bot is in corner, show bubble
-        tl.set(this.bubble, { display: 'block', opacity: 0, y: 10 });
-        tl.to(this.bubble, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.2)" });
+            const tl = gsap.timeline();
 
-        await tl;
+            // Ensure bot is in corner, show bubble
+            tl.set(this.bubble, { display: 'block', opacity: 0, y: 10 });
+            tl.to(this.bubble, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.2)" });
 
-        // 2. Type Text
-        await new Promise(resolve => {
-            gsap.to(this.textEl, {
-                text: text,
-                duration: Math.min(text.length * 0.04, 3), // Cap duration
-                ease: "none",
+            await tl;
+
+            // 2. Type Text
+            await new Promise(resolve => {
+                gsap.to(this.textEl, {
+                    text: text,
+                    duration: Math.min(text.length * 0.04, 3), // Cap duration
+                    ease: "none",
+                    onComplete: () => {
+                        // Pause to read
+                        setTimeout(resolve, pauseDuration);
+                    }
+                });
+            });
+
+            // 3. Log & Hide
+            const tlExit = gsap.timeline();
+
+            tlExit.to(this.bubble, {
+                opacity: 0, y: 10, scale: 0.9, duration: 0.3,
                 onComplete: () => {
-                    // Pause to read
-                    setTimeout(resolve, pauseDuration);
+                    this.bubble.style.display = 'none';
+                    this.addToLog(text); // Save to sidebar
                 }
             });
-        });
 
-        // 3. Log & Hide
-        const tlExit = gsap.timeline();
+            this.overlay.classList.remove('active'); // Fade out backdrop
+            await tlExit;
+        },
 
-        tlExit.to(this.bubble, {
-            opacity: 0, y: 10, scale: 0.9, duration: 0.3,
-            onComplete: () => {
-                this.bubble.style.display = 'none';
-                this.addToLog(text); // Save to sidebar
+        hide() {
+            if (this.el) {
+                gsap.to(this.el, { y: 20, opacity: 0, onComplete: () => this.el.classList.add('hidden') });
             }
-        });
-
-        this.overlay.classList.remove('active'); // Fade out backdrop
-        await tlExit;
-    },
-
-    hide() {
-        gsap.to(this.el, { y: 20, opacity: 0, onComplete: () => this.el.classList.add('hidden') });
-    }
-};
-
-// ... (Rest of logic: Canvas, navigation, pipeline, vision, spam, dashboard) ...
-// (We only updated the Bot object, the rest of the file logic is identical to previous versions, ensuring it runs correctly) 
+        }
+    };
+}
 
 // --- Canvas Logic ---
-const canvas = document.getElementById('neural-bg');
-const ctx = canvas.getContext('2d');
-let width, height;
-let nodes = [];
-function resizeCanvas() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; initNodes(); }
-function initNodes() { nodes = []; const count = Math.floor(width * height / 15000); for (let i = 0; i < count; i++) nodes.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5 }); }
-function drawNetwork() { ctx.clearRect(0, 0, width, height); ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.strokeStyle = 'rgba(255,255,255,0.05)'; nodes.forEach(node => { node.x += node.vx; node.y += node.vy; if (node.x < 0 || node.x > width) node.vx *= -1; if (node.y < 0 || node.y > height) node.vy *= -1; ctx.beginPath(); ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2); ctx.fill(); }); for (let i = 0; i < nodes.length; i++) { for (let j = i + 1; j < nodes.length; j++) { const d = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y); if (d < 120) { ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke(); } } } requestAnimationFrame(drawNetwork); }
-window.addEventListener('resize', resizeCanvas); resizeCanvas(); drawNetwork();
+function initCanvas() {
+    canvas = document.getElementById('neural-bg');
+    if (!canvas) return;
+    
+    ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    function resizeCanvas() { 
+        width = canvas.width = window.innerWidth; 
+        height = canvas.height = window.innerHeight; 
+        initNodes(); 
+    }
+    
+    function initNodes() { 
+        nodes = []; 
+        const count = Math.floor(width * height / 15000); 
+        for (let i = 0; i < count; i++) {
+            nodes.push({ 
+                x: Math.random() * width, 
+                y: Math.random() * height, 
+                vx: (Math.random() - 0.5) * 0.5, 
+                vy: (Math.random() - 0.5) * 0.5 
+            }); 
+        }
+    }
+    
+    function drawNetwork() { 
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, width, height); 
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; 
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)'; 
+        nodes.forEach(node => { 
+            node.x += node.vx; 
+            node.y += node.vy; 
+            if (node.x < 0 || node.x > width) node.vx *= -1; 
+            if (node.y < 0 || node.y > height) node.vy *= -1; 
+            ctx.beginPath(); 
+            ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2); 
+            ctx.fill(); 
+        }); 
+        for (let i = 0; i < nodes.length; i++) { 
+            for (let j = i + 1; j < nodes.length; j++) { 
+                const d = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y); 
+                if (d < 120) { 
+                    ctx.beginPath(); 
+                    ctx.moveTo(nodes[i].x, nodes[i].y); 
+                    ctx.lineTo(nodes[j].x, nodes[j].y); 
+                    ctx.stroke(); 
+                } 
+            } 
+        } 
+        requestAnimationFrame(drawNetwork); 
+    }
+    
+    window.addEventListener('resize', resizeCanvas); 
+    resizeCanvas(); 
+    drawNetwork();
+}
 
 // --- Navigation ---
 window.switchView = (viewId) => {
@@ -293,3 +354,15 @@ window.runSpamAnalysis = () => {
     }, 2000);
 };
 window.renderDashboard = () => { const sumEl = document.getElementById('dynamic-summary-text'); let text = `You completed ${state.analyses.total} total analyses. `; if (state.analyses.total === 0) { text += "However, no data points were processed. Try running the labs first."; } else { const mostVision = state.analyses.cat > state.analyses.dog ? "Cats" : "Dogs"; const emailType = state.analyses.spam > state.analyses.ham ? "Spam" : "Real"; text += `In the Vision Lab, you focused primarily on <strong>${mostVision}</strong>. `; text += `For NLP, you tested more <strong>${emailType}</strong> emails. `; text += `The model is showing stable learning patterns with increasing accuracy.`; } sumEl.innerHTML = text; gsap.from(sumEl, { y: 20, opacity: 0, duration: 1 }); const maxVal = Math.max(state.analyses.cat, state.analyses.dog, state.analyses.spam, state.analyses.ham, 5); const getH = (val) => Math.floor((val / maxVal) * 100) + "%"; gsap.to('#bar-cat', { height: getH(state.analyses.cat), duration: 1 }); gsap.to('#bar-dog', { height: getH(state.analyses.dog), duration: 1, delay: 0.1 }); gsap.to('#bar-spam', { height: getH(state.analyses.spam), duration: 1, delay: 0.2 }); gsap.to('#bar-ham', { height: getH(state.analyses.ham), duration: 1, delay: 0.3 }); const totalEmail = state.analyses.spam + state.analyses.ham || 1; const spamRatio = state.analyses.spam / totalEmail; const spamStroke = 158 * spamRatio; gsap.to('#pie-spam', { strokeDasharray: `${spamStroke} 158`, duration: 1.5, ease: "power2.out" }); const startDeg = -90 + (360 * spamRatio); gsap.set('#pie-real', { rotation: startDeg, transformOrigin: "50% 50%" }); gsap.to('#pie-real', { strokeDasharray: `${158 * (1 - spamRatio)} 158`, duration: 1.5, ease: "power2.out" }); const endY = Math.max(10, 90 - (state.analyses.total * 5)); const newPath = `M0,90 Q100,${(90 + endY) / 2 - 20} 200,${endY}`; const pathEl = document.getElementById('loss-curve'); pathEl.setAttribute('d', newPath); const len = pathEl.getTotalLength(); gsap.fromTo(pathEl, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 2, ease: "power2.out" }); };
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initBot();
+        initCanvas();
+    });
+} else {
+    // DOM already loaded
+    initBot();
+    initCanvas();
+}
