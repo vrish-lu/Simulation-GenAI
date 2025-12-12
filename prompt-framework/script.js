@@ -65,7 +65,8 @@ function initBot() {
             }
         });
     }
-};
+    };
+}
 
 // --- Navigation ---
 window.switchView = async (id) => {
