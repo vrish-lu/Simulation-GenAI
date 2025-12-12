@@ -8,15 +8,19 @@ const state = {
 };
 
 // --- Bot Controller ---
-const Bot = {
-    el: document.getElementById('ai-bot'),
-    textEl: document.getElementById('bot-text'),
-    bubble: document.querySelector('.bot-bubble'),
-    log: document.getElementById('log-content'),
-    overlay: document.getElementById('bot-overlay'),
-    avatar: document.querySelector('.bot-avatar'),
+let Bot;
+let canvas, ctx, w, h, nodes;
 
-    visible: false,
+function initBot() {
+    Bot = {
+        el: document.getElementById('ai-bot'),
+        textEl: document.getElementById('bot-text'),
+        bubble: document.querySelector('.bot-bubble'),
+        log: document.getElementById('log-content'),
+        overlay: document.getElementById('bot-overlay'),
+        avatar: document.querySelector('.bot-avatar'),
+
+        visible: false,
 
     logEntry(text) {
         document.querySelector('.log-placeholder')?.remove();
@@ -322,38 +326,67 @@ window.animateDashboard = () => {
 };
 
 // Canvas Background
-const c = document.getElementById('framework-bg');
-const ctx = c.getContext('2d');
-let w, h;
-const nodes = [];
+function initCanvas() {
+    canvas = document.getElementById('framework-bg');
+    if (!canvas) return;
+    
+    ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    nodes = [];
 
-function resize() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
-window.addEventListener('resize', resize); resize();
+    function resize() { 
+        w = canvas.width = window.innerWidth; 
+        h = canvas.height = window.innerHeight; 
+    }
+    window.addEventListener('resize', resize); 
+    resize();
 
-// Create nodes
-for (let i = 0; i < 30; i++) nodes.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5 });
+    // Create nodes
+    for (let i = 0; i < 30; i++) {
+        nodes.push({ 
+            x: Math.random() * w, 
+            y: Math.random() * h, 
+            vx: (Math.random() - 0.5) * 0.5, 
+            vy: (Math.random() - 0.5) * 0.5 
+        });
+    }
 
-function draw() {
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = 'rgba(217, 70, 239, 0.4)';
-    ctx.strokeStyle = 'rgba(217, 70, 239, 0.1)';
+    function draw() {
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(217, 70, 239, 0.4)';
+        ctx.strokeStyle = 'rgba(217, 70, 239, 0.1)';
 
-    nodes.forEach((n, i) => {
-        n.x += n.vx; n.y += n.vy;
-        if (n.x < 0 || n.x > w) n.vx *= -1; if (n.y < 0 || n.y > h) n.vy *= -1;
+        nodes.forEach((n, i) => {
+            n.x += n.vx; n.y += n.vy;
+            if (n.x < 0 || n.x > w) n.vx *= -1; if (n.y < 0 || n.y > h) n.vy *= -1;
 
-        ctx.beginPath(); ctx.arc(n.x, n.y, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(n.x, n.y, 2, 0, Math.PI * 2); ctx.fill();
 
-        // Connect
-        for (let j = i + 1; j < nodes.length; j++) {
-            const dx = nodes[j].x - n.x;
-            const dy = nodes[j].y - n.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 150) {
-                ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+            // Connect
+            for (let j = i + 1; j < nodes.length; j++) {
+                const dx = nodes[j].x - n.x;
+                const dy = nodes[j].y - n.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke();
+                }
             }
-        }
-    });
-    requestAnimationFrame(draw);
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
 }
-draw();
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initBot();
+        initCanvas();
+    });
+} else {
+    // DOM already loaded
+    initBot();
+    initCanvas();
+}
