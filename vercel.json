@@ -1,5 +1,31 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/ml-explainer",
+      "destination": "/ml-explainer/index.html"
+    },
+    {
+      "source": "/ml-explainer/",
+      "destination": "/ml-explainer/index.html"
+    },
+    {
+      "source": "/token-explainer",
+      "destination": "/token-explainer/index.html"
+    },
+    {
+      "source": "/token-explainer/",
+      "destination": "/token-explainer/index.html"
+    },
+    {
+      "source": "/prompt-framework",
+      "destination": "/prompt-framework/index.html"
+    },
+    {
+      "source": "/prompt-framework/",
+      "destination": "/prompt-framework/index.html"
+    }
+  ]
 }
