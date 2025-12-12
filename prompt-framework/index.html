@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Framework - Advanced Simulation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- GSAP Core + Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+</head>
+
+<body>
+
+    <div class="background-wrapper">
+        <canvas id="framework-bg"></canvas>
+    </div>
+
+    <div class="ambient-glow"></div>
+    <div id="bot-overlay" class="bot-overlay"></div>
+
+    <!-- Layout Container -->
+    <div class="layout-grid">
+
+        <!-- Sidebar Log -->
+        <aside class="sidebar-log">
+            <div class="log-header">
+                <h3>Framework Log</h3>
+                <span class="pulse-indicator"></span>
+            </div>
+            <div id="log-content" class="log-content">
+                <p class="log-placeholder">Initializing Prompt Framework...</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="app-stage">
+
+            <!-- Screen 1: Framework Hero Diagram -->
+            <section id="view-hero" class="view active-view">
+                <div class="glass-panel centered-panel">
+                    <div class="panel-header">
+                        <div class="badge">Master Class</div>
+                        <h1>The Complete <span class="gradient-text">Prompting Framework</span></h1>
+                        <p>Role → Context → Task → Constraints → Examples → Output Format</p>
+                    </div>
+
+                    <div class="framework-visual">
+                        <svg class="connectors-svg" viewBox="0 0 800 200">
+                            <!-- Paths connected dynamically or predefined -->
+                            <path id="flow-path" d="M 50 100 Q 200 50 350 100 T 750 100" class="path-line" />
+                        </svg>
+
+                        <!-- Nodes -->
+                        <div class="nodes-container">
+                            <div class="node-item" data-step="1">
+                                <div class="node-circle" id="node-role">👤</div>
+                                <span class="node-label">Role</span>
+                                <div class="tooltip">Who is the AI?</div>
+                            </div>
+                            <div class="node-item" data-step="2">
+                                <div class="node-circle" id="node-context">🌍</div>
+                                <span class="node-label">Context</span>
+                                <div class="tooltip">Background Info</div>
+                            </div>
+                            <div class="node-item" data-step="3">
+                                <div class="node-circle" id="node-task">⚡</div>
+                                <span class="node-label">Task</span>
+                                <div class="tooltip">Action needed</div>
+                            </div>
+                            <div class="node-item" data-step="4">
+                                <div class="node-circle" id="node-const">🚧</div>
+                                <span class="node-label">Limit</span>
+                                <div class="tooltip">Constraints</div>
+                            </div>
+                            <div class="node-item" data-step="5">
+                                <div class="node-circle" id="node-ex">💡</div>
+                                <span class="node-label">Ex.</span>
+                                <div class="tooltip">Show Examples</div>
+                            </div>
+                            <div class="node-item" data-step="6">
+                                <div class="node-circle" id="node-fmt">📄</div>
+                                <span class="node-label">Format</span>
+                                <div class="tooltip">Output Style</div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Token -->
+                        <div class="travel-token"></div>
+                    </div>
+
+                    <div class="controls-area">
+                        <div class="status-msg" id="hero-status">Awaiting Activation...</div>
+                        <button class="btn-primary-lg" id="btn-hero-play" onclick="runFrameworkAnim()">Play Framework
+                            Animation ▶</button>
+                        <button class="btn-primary hidden" id="btn-hero-next" onclick="switchView('email')">Proceed to
+                            Examples →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2: Example 1 (Email) -->
+            <section id="view-email" class="view">
+                <div class="glass-panel wide-panel split-layout">
+
+                    <!-- Left: Form -->
+                    <div class="panel-left">
+                        <h3>Construct Prompt</h3>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <input type="text" class="input-field" value="Experienced Project Manager">
+                        </div>
+                        <div class="form-group">
+                            <label>Context</label>
+                            <textarea class="textarea-field">Team missed the deadline due to scope creep.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Task</label>
+                            <input type="text" class="input-field" value="Write an update email to the client">
+                        </div>
+                        <div class="form-group">
+                            <label>Constraints</label>
+                            <input type="text" class="input-field"
+                                value="Be professional, apologetic but firm on new timeline.">
+                        </div>
+                        <button class="btn-action full-width" onclick="generateEmail()">Generate Email</button>
+                    </div>
+
+                    <!-- Right: Output -->
+                    <div class="panel-right">
+                        <h3>AI Output</h3>
+                        <div class="output-card email-card">
+                            <div class="email-header">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="email-body" id="email-body-text">
+                                <p class="placeholder-text">Waiting for prompt assembly...</p>
+                            </div>
+                        </div>
+                        <div class="output-actions">
+                            <button class="btn-outline hidden" id="btn-email-next" onclick="switchView('job')">Use This
+                                Draft →</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Screen 3: Example 2 (JD Draft) -->
+            <section id="view-job" class="view">
+                <div class="glass-panel wide-panel split-layout">
+
+                    <!-- Left: Form -->
+                    <div class="panel-left">
+                        <h3>Job Description Builder</h3>
+                        <div class="form-group">
+                            <label>Role Target</label>
+                            <input type="text" class="input-field" value="Senior React Developer">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Industry</label>
+                                <select class="select-field">
+                                    <option>FinTech</option>
+                                    <option>HealthTech</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Exp</label>
+                                <select class="select-field">
+                                    <option>5+ Years</option>
+                                    <option>Senior</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Key Skills (Context)</label>
+                            <textarea class="textarea-field">React, TypeScript, Node.js, AWS.</textarea>
+                        </div>
+                        <button class="btn-action full-width" onclick="generateJob()">Draft Description</button>
+                    </div>
+
+                    <!-- Right: Output -->
+                    <div class="panel-right">
+                        <h3>Draft Preview</h3>
+                        <div class="output-card jd-card">
+                            <div class="jd-content" id="jd-body-text">
+                                <p class="placeholder-text">Ready to draft...</p>
+                            </div>
+                            <div class="confidence-meter hidden" id="jd-meter">
+                                <span>Tone Match:</span>
+                                <div class="meter-track">
+                                    <div class="meter-fill" style="width: 95%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="output-actions">
+                            <button class="btn-outline hidden" id="btn-job-next"
+                                onclick="switchView('checklist')">Review Checklist →</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Screen 4: Checklist -->
+            <section id="view-checklist" class="view">
+                <div class="glass-panel centered-panel">
+                    <h2>Final Safety Check</h2>
+                    <p>Before you hit enter, verify your prompt against the framework.</p>
+
+                    <div class="cl-container">
+                        <div class="cl-item" onclick="toggleCheck(0)">
+                            <div class="checkbox"></div><span>Prompt is clear and specific</span>
+                        </div>
+                        <div class="cl-item" onclick="toggleCheck(1)">
+                            <div class="checkbox"></div><span>Task is actionable</span>
+                        </div>
+                        <div class="cl-item" onclick="toggleCheck(2)">
+                            <div class="checkbox"></div><span>Constraints are detailed</span>
+                        </div>
+                        <div class="cl-item" onclick="toggleCheck(3)">
+                            <div class="checkbox"></div><span>Context is sufficient</span>
+                        </div>
+                        <div class="cl-item" onclick="toggleCheck(4)">
+                            <div class="checkbox"></div><span>Output format is well-defined</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-area">
+                        <div class="prog-track-lg">
+                            <div class="prog-fill-lg" id="cl-bar"></div>
+                        </div>
+                        <span id="cl-text">0/5 Verified</span>
+                    </div>
+
+                    <div class="controls-area">
+                        <button class="btn-primary-lg disabled" id="btn-publish" onclick="publishPrompt()">🚀 Publish
+                            Prompt</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 5: Bad vs Good Comparison -->
+            <section id="view-comparison" class="view">
+                <div class="glass-panel wide-panel comparison-layout">
+                    <div class="comp-header">
+                        <h2>vs Comparison Lab</h2>
+                        <p>Analyze the difference between a raw prompt and a Framework-optimized one.</p>
+                        <div class="btn-row centered-row">
+                            <button class="btn-primary-lg" id="btn-run-all" onclick="runComparison()">⚡ Run Compare
+                                Simulation</button>
+                        </div>
+                    </div>
+
+                    <div class="comp-grid" id="comparison-results">
+                        <!-- Bad Card -->
+                        <div class="output-card bad-card hidden" id="card-bad">
+                            <div class="card-header-sm red-bg">⛔ Weak Output</div>
+                            <div class="card-body-sm" id="out-bad">...</div>
+                        </div>
+
+                        <!-- Good Card -->
+                        <div class="output-card good-card hidden" id="card-good">
+                            <div class="card-header-sm green-bg">✅ Optimized Output</div>
+                            <div class="card-body-sm" id="out-good">...</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-action hidden" id="btn-comp-summary" onclick="showCompSummary()">View Impact
+                        Summary →</button>
+                </div>
+            </section>
+
+            <!-- Screen 6: Summary Dashboard -->
+            <section id="view-dashboard" class="view">
+                <div class="glass-panel wide-panel summary-layout">
+                    <h2>Session Analytics</h2>
+
+                    <!-- Qualitative Breakdown -->
+                    <div class="analysis-grid mb-2" id="qual-analysis">
+                        <div class="a-col red-border">
+                            <h4>⛔ Before (Weak)</h4>
+                            <ul>
+                                <li>Generic, vague instructions</li>
+                                <li>Lacked specific role/tone</li>
+                                <li>Missed key context details</li>
+                            </ul>
+                        </div>
+                        <div class="a-col green-border">
+                            <h4>✅ After (Framework)</h4>
+                            <ul>
+                                <li>Clear "Copywriter" Role</li>
+                                <li>Rich Context (Eco-friendly)</li>
+                                <li>Actionable Output Format</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="dash-grid">
+                        <!-- Bar Chart -->
+                        <div class="dash-item">
+                            <h4>Skill Gains</h4>
+                            <div class="chart-area flex-align-bottom" id="chart-bars">
+                                <div class="bar-col">
+                                    <div class="bar" id="b-clarity"></div><span>Clarity</span>
+                                </div>
+                                <div class="bar-col">
+                                    <div class="bar" id="b-act"></div><span>Action</span>
+                                </div>
+                                <div class="bar-col">
+                                    <div class="bar" id="b-brevity"></div><span>Brevity</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Radial Gauge -->
+                        <div class="dash-item">
+                            <h4>Impact Score</h4>
+                            <div class="chart-area centered">
+                                <div class="radial-gauge">
+                                    <svg viewBox="0 0 100 100">
+                                        <circle class="g-bg" cx="50" cy="50" r="45"></circle>
+                                        <circle class="g-fg" id="g-impact" cx="50" cy="50" r="45"></circle>
+                                    </svg>
+                                    <span class="g-val" id="impact-val">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line Chart -->
+                        <div class="dash-item full">
+                            <h4>Session Timeline</h4>
+                            <div class="chart-area">
+                                <svg class="line-graph" viewBox="0 0 300 100">
+                                    <path id="graph-timeline" d="M0,100 L300,100" class="graph-path" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-text-box" id="final-summary">Calculating...</div>
+
+                    <div class="dash-actions">
+                        <button class="btn-outline" onclick="location.reload()">Restart Simulation</button>
+                        <button class="btn-primary" onclick="window.location.href='../index.html'">Back to Hub</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- AI Bot (Bottom Right) -->
+    <div id="ai-bot" class="ai-bot hidden">
+        <div class="bot-bubble">
+            <p id="bot-text"></p>
+            <span class="cursor">|</span>
+        </div>
+        <div class="bot-avatar">
+            <img src="../ml-explainer/assets/agent-illus copy.png" alt="AI Agent">
+            <div class="bot-ring"></div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-modal" id="success-modal">
+        <div class="modal-content">
+            <div class="icon-lg">🎉</div>
+            <h2>Prompt Optimized!</h2>
+            <p>You have successfully applied the 6-step Prompting Framework.</p>
+            <button class="btn-primary" onclick="switchView('comparison')">Proceed to Comparison Lab</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

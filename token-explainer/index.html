@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Explorer - AI Simulation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- GSAP Core + Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+</head>
+
+<body>
+
+    <div class="background-wrapper">
+        <canvas id="token-bg"></canvas>
+    </div>
+
+    <div class="ambient-glow"></div>
+
+    <!-- Bot Overlay -->
+    <div id="bot-overlay" class="bot-overlay"></div>
+
+    <!-- Layout Container -->
+    <div class="layout-grid">
+
+        <!-- Sidebar: Session Log -->
+        <aside class="sidebar-log">
+            <div class="log-header">
+                <h3>Session Notes</h3>
+                <span class="pulse-dot"></span>
+            </div>
+            <div id="log-content" class="log-content">
+                <p class="log-placeholder">Waiting for instructor input...</p>
+            </div>
+        </aside>
+
+        <!-- Main Stage -->
+        <main class="app-stage">
+
+            <!-- Screen 1: Tokenization -->
+            <section id="view-token" class="view active-view">
+                <div class="glass-panel centered-panel">
+                    <div class="panel-header">
+                        <h2>1. What is a Token?</h2>
+                        <p>See how AI breaks down language.</p>
+                    </div>
+
+                    <div class="demo-stage" id="token-stage">
+                        <div class="input-text-container">
+                            <span id="raw-text">Machine learning makes computers smart.</span>
+                        </div>
+
+                        <div class="tokens-container" id="tokens-output">
+                            <!-- Tokens injected here -->
+                        </div>
+                    </div>
+
+                    <div class="controls-area">
+                        <button class="btn-primary-lg" onclick="runTokenization()">Start Analysis</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2: Context Window -->
+            <section id="view-context" class="view">
+                <div class="glass-panel wide-panel">
+                    <div class="panel-header">
+                        <h2>2. Context Window</h2>
+                        <p>Memory capacity limits understanding.</p>
+                    </div>
+
+                    <div class="context-comparison">
+                        <!-- Small Window -->
+                        <div class="window-col">
+                            <h4>Small Context (Low Memory)</h4>
+                            <div class="memory-circle small" id="mem-small">
+                                <div class="token-stream" id="stream-small"></div>
+                                <div class="overflow-zone">Overflow!</div>
+                            </div>
+                            <div class="stat-tag bad">Forgets Quickly</div>
+                        </div>
+
+                        <!-- Large Window -->
+                        <div class="window-col">
+                            <h4>Large Context (High Memory)</h4>
+                            <div class="memory-circle large" id="mem-large">
+                                <div class="token-stream" id="stream-large"></div>
+                            </div>
+                            <div class="stat-tag good">Retains Entire Book</div>
+                        </div>
+                    </div>
+
+                    <div class="controls-area">
+                        <button class="btn-primary" onclick="runContextSim()">Run Memory Test</button>
+                        <button class="btn-secondary hidden" id="btn-next-hallucinate"
+                            onclick="switchView('hallucinate')">Next: Hallucinations →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 3: Hallucinations -->
+            <section id="view-hallucinate" class="view">
+                <div class="glass-panel centered-panel">
+                    <div class="panel-header">
+                        <h2>3. The Hallucination Glitch</h2>
+                        <p>When the model guesses facts.</p>
+                    </div>
+
+                    <div class="chat-interface">
+                        <div class="chat-bubble user">
+                            <p>Who was the first person to land on Mars?</p>
+                        </div>
+                        <div class="chat-bubble ai hidden" id="ai-response">
+                            <p>The first human on Mars was <span class="glitch-text">Captain Elena Voronova</span> in
+                                2032.</p>
+                        </div>
+                        <div class="warning-badge hidden" id="warning-badge">⚠️ FACTUAL ERROR DETECTED</div>
+                    </div>
+
+                    <div class="controls-area">
+                        <button class="btn-primary" onclick="runHallucinationSim()">Ask AI Model</button>
+                        <button class="btn-secondary hidden" id="btn-finish" onclick="switchView('summary')">View
+                            Simulation Summary →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 4: Summary -->
+            <section id="view-summary" class="view">
+                <div class="glass-panel summary-panel">
+                    <h2>Concept Mastery</h2>
+                    <p>You have successfully simulated the core constraints of LLMs.</p>
+
+                    <div class="summary-cards">
+                        <div class="card" style="transition-delay: 0.1s">
+                            <div class="card-icon">🧩</div>
+                            <h3>Tokens</h3>
+                            <p class="summary-desc">Text is processed as chunks (tokens), not words. 1000 tokens ≈ 750
+                                words.</p>
+                        </div>
+                        <div class="card" style="transition-delay: 0.3s">
+                            <div class="card-icon">🧠</div>
+                            <h3>Context Window</h3>
+                            <p class="summary-desc">The finite attention span of the model. Once full, old info is
+                                dropped.</p>
+                        </div>
+                        <div class="card" style="transition-delay: 0.5s">
+                            <div class="card-icon">😵‍💫</div>
+                            <h3>Hallucination</h3>
+                            <p class="summary-desc">When probability beats fact. The model predicts the next likely
+                                token, even if false.</p>
+                        </div>
+                    </div>
+
+                    <div class="footer-actions">
+                        <button class="btn-outline" onclick="location.reload()">Restart Simulation</button>
+                        <button class="btn-primary" onclick="window.location.href='../index.html'">Back to Hub</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- AI Bot (Bottom Right) -->
+    <div id="ai-bot" class="ai-bot hidden">
+        <div class="bot-bubble">
+            <p id="bot-text"></p>
+            <span class="cursor">|</span>
+        </div>
+        <div class="bot-avatar">
+            <div class="bot-ring"></div>
+            <!-- Using the same asset or a placeholder -->
+            <img src="../ml-explainer/assets/agent-illus copy.png" alt="AI Agent"
+                onerror="this.src='https://cdn-icons-png.flaticon.com/512/4712/4712035.png'">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

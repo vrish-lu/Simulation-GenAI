@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Mind - AI Simulation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- GSAP Core + Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+</head>
+
+<body>
+
+    <div class="background-canvas-wrapper">
+        <canvas id="neural-bg"></canvas>
+    </div>
+
+    <div class="ambient-glow"></div>
+
+    <!-- Bot Overlay -->
+    <div id="bot-overlay" class="bot-overlay"></div>
+
+    <!-- Layout Container (Grid) -->
+    <div class="layout-grid">
+
+        <!-- Sidebar Log -->
+        <aside class="sidebar-log">
+            <div class="log-header">
+                <h3>Systems Log</h3>
+                <span class="active-indicator"></span>
+            </div>
+            <div id="log-content" class="log-content">
+                <p class="log-placeholder">Initializing neural transcript...</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="app-stage">
+
+            <!-- Screen 1: Hero -->
+            <section id="view-hero" class="view active-view">
+                <div class="glass-panel centered-panel hero-content">
+                    <div class="hero-badge">v2.1.0 Simulation Ready</div>
+                    <h1>What is <span class="gradient-text">Machine Learning?</span></h1>
+                    <p class="subtitle">
+                        Follow the journey of data as it teaches a computer to think, learn, and predict.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn-primary-lg" onclick="startExperience()">
+                            Initialize System <span class="icon-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2: Pipeline Animation -->
+            <section id="view-pipeline" class="view">
+                <div class="glass-panel wide-panel pipeline-layout">
+                    <div class="panel-header">
+                        <h2>Training Pipeline</h2>
+                        <p>Visualizing the flow from raw inputs to intelligent model.</p>
+                    </div>
+
+                    <div class="pipeline-stage-area">
+                        <!-- SVG Path layer -->
+                        <svg class="pipeline-paths" viewBox="0 0 1000 200">
+                            <path id="path-1" d="M 100 100 C 250 100, 250 100, 400 100" class="path-line" />
+                            <path id="path-2" d="M 500 100 C 650 100, 650 100, 800 100" class="path-line" />
+                        </svg>
+
+                        <!-- Step 1: Ingest -->
+                        <div class="node-wrapper" id="node-ingest">
+                            <div class="node-circle">📁</div>
+                            <span class="node-label">Ingest Data</span>
+                            <div class="file-cluster" id="file-cluster"></div>
+                        </div>
+
+                        <!-- Step 2: Training -->
+                        <div class="node-wrapper" id="node-train">
+                            <div class="training-ring"></div>
+                            <div class="node-circle">⚙️</div>
+                            <span class="node-label">Training</span>
+                        </div>
+
+                        <!-- Step 3: Model -->
+                        <div class="node-wrapper" id="node-model">
+                            <div class="model-cube">
+                                <div class="face front"></div>
+                                <div class="face back"></div>
+                                <div class="face right"></div>
+                                <div class="face left"></div>
+                                <div class="face top"></div>
+                                <div class="face bottom"></div>
+                            </div>
+                            <span class="node-label">Model Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-footer">
+                        <div class="status-message" id="pipeline-status">
+                            System Standby...
+                        </div>
+                        <div class="controls">
+                            <button class="btn-primary" id="btn-run-pipeline" onclick="pipelineSequenceStart()">Start
+                                Training</button>
+                            <button class="btn-primary hidden" id="btn-pipeline-next"
+                                onclick="switchView('vision')">Proceed to Vision Lab →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 3: Vision Lab -->
+            <section id="view-vision" class="view">
+                <div class="glass-panel centered-panel">
+                    <div class="lab-header centered-header">
+                        <div class="icon-box">👁️</div>
+                        <h3>Experiment 1: Vision Classifier</h3>
+                    </div>
+
+                    <div class="lab-body single-lab-width">
+                        <div class="input-selection">
+                            <label>Source Data:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-opt active" id="opt-cat" onclick="setVisionSource('cat')">Cat
+                                    🐱</button>
+                                <button class="toggle-opt" id="opt-dog" onclick="setVisionSource('dog')">Dog 🐶</button>
+                            </div>
+                        </div>
+
+                        <div class="viewport-vision">
+                            <img id="vision-img" src="assets/cat.png" alt="Classify Subject">
+                            <div class="scan-laser"></div>
+                        </div>
+
+                        <button class="btn-action full-width" onclick="runVisionAnalysis()">Classify Image</button>
+
+                        <div class="result-display-vision">
+                            <div class="res-row">
+                                <span>Prediction:</span>
+                                <span class="res-val" id="vis-pred">--</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" id="vis-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="view-footer">
+                        <button class="btn-secondary hidden" id="btn-vision-next" onclick="switchView('nlp')">Next
+                            Experiment: NLP →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 4: NLP Lab -->
+            <section id="view-nlp" class="view">
+                <div class="glass-panel centered-panel">
+                    <div class="lab-header centered-header">
+                        <div class="icon-box">🛡️</div>
+                        <h3>Experiment 2: Spam Analyzer</h3>
+                    </div>
+
+                    <div class="lab-body single-lab-width">
+                        <label>Select Message to Analyze:</label>
+                        <div class="preset-grid">
+                            <button class="preset-msg" onclick="loadSpamPreset(0)">🏆 Prize</button>
+                            <button class="preset-msg" onclick="loadSpamPreset(1)">📅 Meeting</button>
+                            <button class="preset-msg" onclick="loadSpamPreset(2)">💊 Meds</button>
+                            <button class="preset-msg" onclick="loadSpamPreset(3)">👋 Friend</button>
+                        </div>
+
+                        <div class="message-card-wrapper">
+                            <div class="message-card">
+                                <div class="card-front">
+                                    <div class="msg-header"></div>
+                                    <div class="msg-line long"></div>
+                                    <div class="msg-line short"></div>
+                                    <p id="msg-preview-text">Select a message...</p>
+                                </div>
+                                <div class="card-back">
+                                    <div class="verdict-badge" id="spam-verdict">SPAM</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn-action full-width" onclick="runSpamAnalysis()">Analyze Message</button>
+
+                        <div class="result-display-spam">
+                            <div class="radial-chart">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="bg-ring" cx="50" cy="50" r="45"></circle>
+                                    <circle class="fg-ring" id="spam-ring" cx="50" cy="50" r="45"></circle>
+                                </svg>
+                                <div class="chart-center">
+                                    <span id="spam-score">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="view-footer">
+                        <button class="btn-secondary hidden" id="btn-nlp-next" onclick="switchView('summary')">View
+                            Simulation Report →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 5: Summary Dashboard -->
+            <section id="view-summary" class="view">
+                <div class="glass-panel summary-panel">
+                    <div class="summary-header">
+                        <h2>Analytics Dashboard</h2>
+                        <p>Session Performance & Metrics</p>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dash-card full-span">
+                            <h4>Session Insight</h4>
+                            <p id="dynamic-summary-text" class="summary-text">
+                                No data available. Run the simulation to generate insights.
+                            </p>
+                        </div>
+                        <div class="dash-card">
+                            <h4>Total Analyses</h4>
+                            <div class="chart-container">
+                                <div class="bar-chart-ui">
+                                    <div class="bar-group">
+                                        <div class="bar-val" id="bar-cat" style="height: 0%"></div>
+                                        <span class="bar-lbl">Cat</span>
+                                    </div>
+                                    <div class="bar-group">
+                                        <div class="bar-val" id="bar-dog" style="height: 0%"></div>
+                                        <span class="bar-lbl">Dog</span>
+                                    </div>
+                                    <div class="bar-group">
+                                        <div class="bar-val" id="bar-spam" style="height: 0%"></div>
+                                        <span class="bar-lbl">Spam</span>
+                                    </div>
+                                    <div class="bar-group">
+                                        <div class="bar-val" id="bar-ham" style="height: 0%"></div>
+                                        <span class="bar-lbl">Real</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <h4>Distribution</h4>
+                            <div class="chart-container centered">
+                                <svg class="pie-svg" viewBox="0 0 100 100">
+                                    <circle r="25" cx="50" cy="50" fill="transparent" stroke="rgba(255,255,255,0.1)"
+                                        stroke-width="50"></circle>
+                                    <circle r="25" cx="50" cy="50" fill="transparent" stroke="#F43F5E" stroke-width="50"
+                                        stroke-dasharray="158" stroke-dashoffset="158" transform="rotate(-90 50 50)"
+                                        id="pie-spam"></circle>
+                                    <circle r="25" cx="50" cy="50" fill="transparent" stroke="#10B981" stroke-width="50"
+                                        stroke-dasharray="158" stroke-dashoffset="158" transform="rotate(-90 50 50)"
+                                        id="pie-real"></circle>
+                                    <circle class="pie-hole-overlay" r="20" cx="50" cy="50" fill="var(--bg-deep)">
+                                    </circle>
+                                </svg>
+                                <div class="pie-legend">
+                                    <span class="dot-spam">Spam</span>
+                                    <span class="dot-real">Real</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <h4>Learning Curve</h4>
+                            <div class="chart-container">
+                                <svg class="line-chart-svg" viewBox="0 0 200 100">
+                                    <line x1="0" y1="25" x2="200" y2="25"
+                                        style="stroke:rgba(255,255,255,0.05); stroke-width:1"></line>
+                                    <line x1="0" y1="50" x2="200" y2="50"
+                                        style="stroke:rgba(255,255,255,0.05); stroke-width:1"></line>
+                                    <line x1="0" y1="75" x2="200" y2="75"
+                                        style="stroke:rgba(255,255,255,0.05); stroke-width:1"></line>
+                                    <path id="loss-curve" d="M0,90 L200,90" fill="none" class="chart-line-path"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-actions">
+                        <button class="btn-outline" onclick="location.reload()">Restart Simulation</button>
+                        <button class="btn-primary" onclick="window.location.href='../index.html'">Back to Hub</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- AI Bot (Moved to Bottom Right) -->
+    <div id="ai-bot" class="ai-bot hidden">
+        <div class="bot-bubble">
+            <p id="bot-text"></p>
+            <span class="typing-cursor">|</span>
+        </div>
+        <div class="bot-avatar">
+            <img src="assets/agent-illus copy.png" alt="AI Avatar" id="bot-face">
+            <div class="bot-ring"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
