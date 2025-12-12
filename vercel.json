@@ -27,5 +27,16 @@
       "source": "/prompt-framework/",
       "destination": "/prompt-framework/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/ml-explainer/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
   ]
 }

@@ -265,7 +265,7 @@ window.pipelineSequenceStart = async () => {
 
 // ... (Labs and Dashboard Logic Remains Same) ...
 let visionSrc = 'cat';
-window.setVisionSource = (type) => { state.lastVision = type; document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active')); document.getElementById(`opt-${type}`).classList.add('active'); const img = document.getElementById('vision-img'); gsap.to(img, { opacity: 0, duration: 0.2, onComplete: () => { img.src = `assets/${type}.png`; gsap.to(img, { opacity: 1, duration: 0.2 }); document.getElementById('vis-bar').style.width = '0%'; document.getElementById('vis-pred').innerText = '--'; } }); };
+window.setVisionSource = (type) => { state.lastVision = type; document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active')); document.getElementById(`opt-${type}`).classList.add('active'); const img = document.getElementById('vision-img'); gsap.to(img, { opacity: 0, duration: 0.2, onComplete: () => { img.src = `/ml-explainer/assets/${type}.png`; gsap.to(img, { opacity: 1, duration: 0.2 }); document.getElementById('vis-bar').style.width = '0%'; document.getElementById('vis-pred').innerText = '--'; } }); };
 window.runVisionAnalysis = () => {
     const laser = document.querySelector('.scan-laser');
     gsap.fromTo(laser, { top: '-10%', opacity: 1 }, { top: '110%', duration: 1.2, ease: "linear", onComplete: () => laser.style.opacity = 0 });
